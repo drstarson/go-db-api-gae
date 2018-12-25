@@ -1,26 +1,29 @@
 package main
 
-import(
-    "fmt"
-    "log"
-    "net/http"
+import (
+	"fmt"
+	"log"
+	"net/http"
+
+	"github.com/gorilla/mux"
 )
 
-func main(){
-    http.HandleFunc("/", handle)
-    http.HandleFunc("/_ah/health", healthCheckHandler)
-    log.Print("Listening on port :8080")
-    log.Fatal(http.ListenAndServe(":8080",nil))
+func handleRequests() {
+	myRouter := mux.NewRouter().StrictSlash(true)
+	myRouter.HandleFunc("/", helloWorld).Methods("GET")
+	myRouter.HandleFunc("/_ah/health", healthCheckHandler).Methods("GET")
+	log.Print("Listening on port :8081")
+	log.Fatal(http.ListenAndServe(":8081", myRouter))
 }
 
-func handle(w http.ResponseWriter, r *http.Request){
-    if r.URL.Path != "/"{
-        http.NotFound(w,r)
-        return
-    }
-    fmt.Fprint(w, "Hello, Wrld!")
+func helloWorld(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintf(w, "Hello World!")
 }
 
-func healthCheckHandler(w http.ResponseWriter, r *http.Request){
-    fmt.Fprint(w, "Better than good!")
+func healthCheckHandler(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprint(w, "Better than good!")
+}
+
+func main() {
+	handleRequests()
 }
